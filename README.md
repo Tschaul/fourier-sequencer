@@ -1,0 +1,2 @@
+# fourier-sequencer
+Melodic Sequencer

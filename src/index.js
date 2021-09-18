@@ -1,61 +1,125 @@
 import * as Tone from "Tone"
 import * as teoria from "teoria"
 
-console.log("Hello from TypeScript")
 
-document.querySelector('button').addEventListener('click', async () => {
+const zeroes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+const ones = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+const saw16 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 7, 6, 5, 4, 3, 2, 1]
+const saw8 = [0, 1, 2, 3, 4, 3, 2, 1, 0, 1, 2, 3, 4, 3, 2, 1]
+const saw4 = [0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1]
+const saw2 = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,]
+
+const step16 = [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+const step8 = [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0]
+const step4 = [1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,]
+const step2 = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,]
+
+const periods = [2, 4, 8, 16];
+
+let melodyAmps = [0, 0, 0, 0]
+let melodyPhases = [0, 0, 0, 0]
+
+let rythmAmps = [0, 0, 0, 0]
+let rythmPhases = [0, 0, 0, 0]
+
+let melodyUnits
+
+let melodySeries
+let rythmSeries
+
+let melody
+let synth
+let velocities
+
+let rootKey
+let scale
+
+async function ready() {
   await Tone.start()
+  synth = new Tone.FMSynth().toMaster()
+
   console.log('audio is ready aaa')
 
-  const melodyAmps = [0.5, 0, 1, 0]
-  const melodyPhases = [0, 0, 1, 0]
+  rootKey = teoria.note('a3')
 
-  const rythmAmps = [0, 1, 1, 0]
-  const rythmPhases = [0, 0, 0, 0]
+  scale = rootKey.scale('aeolian').notes()
 
-  const melodyUnits = [saw16, saw8, saw4, saw2]
+  calculateSequence()
+}
 
-  const melodySeries = buildSeries(melodyAmps, melodyPhases, melodyUnits)
-  const rythmSeries = buildSeries(rythmAmps, rythmPhases, melodyUnits)
+function calculateSequence() {
 
-  const rootKey = teoria.note('a3')
+  melodyUnits = [saw16, saw8, saw4, saw2]
 
-  const scale = rootKey.scale('aeolian').notes()
+  melodySeries = buildSeries(melodyAmps, melodyPhases, melodyUnits)
+  rythmSeries = buildSeries(rythmAmps, rythmPhases, melodyUnits)
 
-  console.log({melodySeries, rythmSeries})
-  console.log(scale.map(it => it.key()))
+  melody = melodySeries.map(it => scale[Math.round(it)].toString())
 
-  const melody = melodySeries.map(it => scale[Math.round(it)].toString())
+  velocities = mul(rythmSeries, 1 / (Math.max(...rythmSeries)))
 
-  const synth = new Tone.FMSynth().toMaster()
+  for (const i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]) {
 
-  const velocities = mul(rythmSeries, 1/(Math.max(...rythmSeries)))
+    const elem = document.querySelector('#note_'+i)
 
-  console.log(velocities)
+    elem.style.transform = `translate(0, ${-1 * melodySeries[i] * 50}px)`
+    elem.style.opacity = `${velocities[i]}`
 
-  for (let index = 0; index <= melody.length; index++) {
-
-    synth.triggerAttackRelease(melody[index], "8n", undefined, velocities[index]);
-
-    await sleep(500)
   }
 
+}
+
+ready();
+
+let interval
+let bars
+let index
+
+document.querySelector('#play').addEventListener('click', async (event) => {
+
+  console.log(event.target.id);
 
 
-  var part = new Tone.Part(function(time, value){
-    //the value is an object which contains both the note and the velocity
-    synth.triggerAttackRelease(value.note, "8n", time, value.velocity);
-  }, [{"time" : 0, "note" : "C3", "velocity": 0.9},
-       {"time" : "0:2", "note" : "C4", "velocity": 0.5}
-  ]).start(0);
+  bars = 0;
+  index = 0;
+  interval = setInterval(() => {
+    console.log({ index, bars })
+    synth.triggerAttackRelease(melody[index], "8n", undefined, velocities[index])
+    index++;
+    if (index >= melody.length) {
+      index = 0;
+      bars++;
+    }
+    document.querySelector('#index').textContent = '' + (index + 1)
+  }, 300)
 
 })
 
-function sleep(ms) {
-  return new Promise((resolve, reject) => {
-    setTimeout(resolve, ms)
-  })
+document.querySelector('#stop').addEventListener('click', async (event) => {
+
+  console.log(event.target.id);
+  clearInterval(interval);
+  bars = 0;
+  index = 0;
+  document.querySelector('#index').textContent = '' + (index + 1)
+})
+
+function bindSeries(name, values) {
+  for (const i of [0, 1, 2, 3]) {
+    const s = periods[i]
+    document.querySelector('#' + name + '_' + s).addEventListener('input', (event) => {
+
+      values[i] = parseFloat(event.target.value);
+      calculateSequence()
+    })
+  }
 }
+
+bindSeries('melodyAmps', melodyAmps)
+bindSeries('melodyPhases', melodyPhases)
+bindSeries('rythmAmps', rythmAmps)
+bindSeries('rythmPhases', rythmPhases)
 
 function buildSeries(amps, phases, units) {
 
@@ -65,11 +129,15 @@ function buildSeries(amps, phases, units) {
 
     const unit = units[unitIndex]
     const amp = amps[unitIndex]
-    const phase = phases[unitIndex]
+    const phase = Math.round(phases[unitIndex] / periods[unitIndex] * 16)
 
-    // console.log({unit, amp, phase})
+    if (phase != 0){
+      console.log({unit, amp, phase})
+    }
     const shiftedUnit = shift(unit, phase)
-    // console.log({shiftedUnit})
+    if (phase != 0){
+      console.log({shiftedUnit})
+    }
     const ampedShiftedUnit = mul(shiftedUnit, amp)
 
     res = add(res, ampedShiftedUnit)
@@ -87,30 +155,25 @@ function mul(vec1, scalar) {
 }
 
 function shift(vec, integer) {
-  if (integer = 0) {
+  if (integer == 0) {
     return vec
   } else {
-    return [...Array(5).keys()].reduce((prev, _) => {
-      return arrayRotate(prev, integer < 0)
-    }, vec)
+    let result = [...vec];
+    for (const i of [...Array(Math.abs(integer)).keys()]) {
+      result = arrayRotate(result, integer < 0)
+    }
+    // console.log( integer, [...Array.of({length: integer})])
+    // return [...Array.of({length: integer})].reduce((prev, _) => {
+    //   return arrayRotate(prev, integer < 0)
+    // }, vec)
+    return result;
   }
 }
+
+window.shift = shift;
 
 function arrayRotate(arr, reverse) {
   if (reverse) arr.unshift(arr.pop());
   else arr.push(arr.shift());
   return arr;
 }
-
-const zeroes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-const ones = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-const saw16 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 7, 6, 5, 4, 3, 2, 1]
-const saw8 = [0, 1, 2, 3, 4, 3, 2, 1, 0, 1, 2, 3, 4, 3, 2, 1]
-const saw4 = [0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1]
-const saw2 = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,]
-
-const step16 = [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-const step8 = [1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0]
-const step4 = [1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0,]
-const step2 = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,]

@@ -1,15 +1,109 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8" />
-   <title>Asset Management</title>
-   <title>Output Management</title>
+    <title>Asset Management</title>
+    <title>Output Management</title>
 
-  </head>
-  <body>
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto auto auto auto;
+            background-color: #2196F3;
+            padding: 10px;
+        }
 
-   <script src="bundle.js"></script>
+        .grid-item {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            font-size: 20px;
+            text-align: center;
+        }
 
-   <button>do it</button>
-  </body>
+        .notes-row {
+            display: flex;
+            background-color: #2196F3;
+            padding: 10px;
+            height: 550px;
+            align-items: flex-end;
+        }
+
+        .notes-row-item {
+            width: 50px;
+            height: 50px;
+            background-color: coral;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid-container">
+        <div class="grid-item"><button id="play">play</button><button id="stop">stop</button><span id="index">0</span>
+        </div>
+        <div class="grid-item">2</div>
+        <div class="grid-item">4</div>
+        <div class="grid-item">8</div>
+        <div class="grid-item">16</div>
+        <div class="grid-item">Melody Amplitudes</div>
+        <div class="grid-item"> <input type="range" id="melodyAmps_2" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="melodyAmps_4" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="melodyAmps_8" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="melodyAmps_16" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item">Melody Phases</div>
+        <div class="grid-item"> <input type="range" id="melodyPhases_2" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="melodyPhases_4" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="melodyPhases_8" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="melodyPhases_16" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item">Rhythm Amplitudes</div>
+        <div class="grid-item"> <input type="range" id="rythmAmps_2" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="rythmAmps_4" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="rythmAmps_8" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="rythmAmps_16" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item">Rhythm Phases</div>
+        <div class="grid-item"> <input type="range" id="rythmPhases_2" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="rythmPhases_4" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="rythmPhases_8" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+        <div class="grid-item"> <input type="range" id="rythmPhases_16" value="0" name="volume" min="-1" max="1"
+                step="0.01"> </div>
+    </div>
+
+    <div class="notes-row">
+        <div id="note_0" class="notes-row-item"></div>
+        <div id="note_1" class="notes-row-item"></div>
+        <div id="note_2" class="notes-row-item"></div>
+        <div id="note_3" class="notes-row-item"></div>
+        <div id="note_4" class="notes-row-item"></div>
+        <div id="note_5" class="notes-row-item"></div>
+        <div id="note_6" class="notes-row-item"></div>
+        <div id="note_7" class="notes-row-item"></div>
+        <div id="note_8" class="notes-row-item"></div>
+        <div id="note_9" class="notes-row-item"></div>
+        <div id="note_10" class="notes-row-item"></div>
+        <div id="note_11" class="notes-row-item"></div>
+        <div id="note_12" class="notes-row-item"></div>
+        <div id="note_13" class="notes-row-item"></div>
+        <div id="note_14" class="notes-row-item"></div>
+        <div id="note_15" class="notes-row-item"></div>
+    </div>
+
+    <script src="bundle.js"></script>
+</body>
+
 </html>
